@@ -8,6 +8,10 @@ const RolesSchema = new Schema({
   level: {
     type: Number,
     required: true,
+  },
+  users: {
+    type: Array,
+    default: []
   }
 });
 

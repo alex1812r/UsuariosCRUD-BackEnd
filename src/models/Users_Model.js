@@ -14,7 +14,11 @@ const UserSchema = new Schema({
     type: Object,
     required: true
   },
-  access_token: String,
+  access_token: {
+    type: String,
+    unique: true,
+    required: true
+  },
   status: {
     type: Boolean,
     default: false

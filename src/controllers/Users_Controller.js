@@ -1,7 +1,7 @@
 const UsersModel = require('../models/Users_Model');
 const RolesModel = require('../models/Roles_Model');
-// const jwt = require('jsonwebtoken');
-// const config = require('../config');
+const jwt = require('jsonwebtoken');
+const config = require('../config');
 
 exports.getAll = async (req, res) => {
   const users = await UsersModel.find();
@@ -57,7 +57,6 @@ exports.get = async(req, res) => {
 };
 
 exports.create = async (req, res) => {
-  console.log('BODY : ', req.body);
   const { username, password, rolId, status } = req.body;
   if (!username || !password || !rolId || status === undefined || status === null){
     return res.json({
@@ -66,8 +65,8 @@ exports.create = async (req, res) => {
         msg: 'username, password, rol, status son obligatorios' 
     }});
   }
-
-  const rol = await RolesModel.findById(rolId);
+  
+  const rol = await RolesModel.findById(rolId, { users: 0 });
   if(!rol) {
     console.log('El rol no existe')
     return res.json({
@@ -77,14 +76,16 @@ exports.create = async (req, res) => {
       }
     });
   }
-  
+
   const user = new UsersModel({ 
     username,
     password,
     rol,
-    status 
+    status
   });
-  // user.access_token  = jwt.sign({ id: user._id }, config.secretToken, { expiresIn: 60 * 60 * 72 });
+  
+  const token = await jwt.sign({ id: user._id }, config.secretToken, { expiresIn: 60 * 60 * 72 });
+  user.access_token = token;
 
   try {
     await user.save();
